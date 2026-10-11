@@ -1,149 +1,999 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="hw-on">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<title>The Long Halls</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itsukis Chat Hub Launcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Rye&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="https://aniitsukicoded.github.io/backups/icon.png">
+<script>/* Halloween is ON by default, same storage key as the main site (ich.hwTheme). Runs before paint. */
+try{if(localStorage.getItem('ich.hwTheme')==='0')document.documentElement.classList.remove('hw-on')}catch(_){}</script>
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; }
-  #frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #000; display: block; }
-  #status {
-    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 18px; color: #e6e0d6;
-    font: italic 1.25rem/1.4 "IM Fell English", Georgia, serif; letter-spacing: .04em;
-    background: radial-gradient(ellipse at center, #0d0605 0%, #000 70%);
-    z-index: 2; transition: opacity .3s;
-  }
-  #status.hide { opacity: 0; pointer-events: none; }
-  #msg { opacity: .8; text-shadow: 0 0 12px rgba(150, 24, 18, .5); animation: pulse 2.4s ease-in-out infinite; }
-  .spinner {
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 2px solid rgba(230, 224, 214, .12); border-top-color: #9a1c14;
-    box-shadow: 0 0 14px rgba(150, 24, 18, .45);
-    animation: spin 1.1s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes pulse { 0%, 100% { opacity: .45; } 50% { opacity: .85; } }
-  #status button {
-    background: transparent; color: #e6e0d6; border: 1px solid rgba(230, 224, 214, .35); border-radius: 0;
-    padding: 8px 24px; font: inherit; cursor: pointer; transition: color .2s, border-color .2s, text-shadow .2s;
-  }
-  #status button:hover, #status button:focus-visible { color: #fff; border-color: #a02820; text-shadow: 0 0 12px rgba(150, 24, 18, .6); outline: none; }
-  @media (prefers-reduced-motion: reduce) { #msg { animation: none; } }
+:root{
+  --bg:#0b0c1a; --bg2:#14152b; --panel:rgba(15,16,20,.55); --panel2:rgba(24,25,31,.7);
+  --text:#eef0ff; --muted:#9a9dc4; --accent:#7c6cff; --accent2:#ff6cb4;
+  --danger:#ff5d73; --ok:#4cd6a0; --border:rgba(255,255,255,.14);
+  --spring:cubic-bezier(.16,1,.3,1);
+}
+html.hw-on{--accent:#ff7a1a;--accent2:#a855ff;--border:rgba(255,165,90,.15)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+::selection{background:rgba(124,108,255,.45)}
+html.hw-on ::selection{background:rgba(255,122,26,.45)}
+
+/* ---------- background (same as the site) ---------- */
+.bgfx{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(1000px 640px at 10% -8%,rgba(124,108,255,.3),transparent 58%),radial-gradient(900px 600px at 96% 8%,rgba(255,108,180,.18),transparent 58%),linear-gradient(160deg,#0b0c1a,#14152b)}
+.bgfx::before{content:"";position:absolute;inset:0;background:radial-gradient(1100px 680px at 12% -8%,rgba(150,70,255,.34),transparent 58%),radial-gradient(950px 640px at 96% 6%,rgba(255,110,30,.22),transparent 58%),radial-gradient(1000px 720px at 50% 118%,rgba(255,90,20,.20),transparent 62%),linear-gradient(160deg,#0d0714 0%,#170b24 45%,#22101a 100%);opacity:0;transition:opacity .8s ease}
+html.hw-on .bgfx::before{opacity:1}
+
+/* ---------- Halloween decorations (copied from the site) ---------- */
+.hw-deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;contain:layout paint style;opacity:0;transition:opacity .8s ease}
+.hw-deco.in{opacity:1}
+.hw-deco .hw-moon{scale:.2;transition:scale 1s var(--spring) .15s}
+.hw-deco.in .hw-moon{scale:1}
+.hw-deco .hw-web{opacity:0;transition:translate .9s var(--spring) .1s,opacity .6s ease .1s}
+.hw-deco .hw-web.l{translate:-50px -50px}.hw-deco .hw-web.r{translate:50px -50px}
+.hw-deco.in .hw-web{translate:0 0;opacity:1}
+.hw-deco .hw-sp{translate:0 -130%;transition:translate 1.1s var(--spring) .3s}
+.hw-deco.in .hw-sp{translate:0 0}
+.hw-deco .hw-pk{translate:0 90px;transition:translate .8s var(--spring) .35s}
+.hw-deco.in .hw-pk{translate:0 0}
+.hw-deco:not(.in) .hw-moon,.hw-deco:not(.in) .hw-web,.hw-deco:not(.in) .hw-sp,.hw-deco:not(.in) .hw-pk{transition-delay:0s}
+/* expanding glow when the theme is switched */
+.hw-ripple{position:fixed;z-index:900;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;pointer-events:none;animation:hwRipple .95s cubic-bezier(.2,.7,.3,1) forwards}
+.hw-ripple.on{background:radial-gradient(circle,rgba(255,150,40,.75),rgba(168,85,255,.5) 55%,transparent 72%)}
+.hw-ripple.off{background:radial-gradient(circle,rgba(160,150,255,.6),rgba(90,80,200,.4) 55%,transparent 72%)}
+@keyframes hwRipple{0%{transform:scale(0);opacity:1}70%{opacity:.55}100%{transform:scale(70);opacity:0}}
+.hw-deco *{pointer-events:none}
+.hw-vig{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 115%,rgba(255,110,20,.16),transparent 55%),radial-gradient(90% 70% at 100% 0,rgba(140,60,255,.16),transparent 60%),radial-gradient(70% 60% at 0 0,rgba(255,120,30,.09),transparent 60%)}
+.hw-moon{position:absolute;top:19vh;right:3%;width:60px;aspect-ratio:1;border-radius:50%;opacity:.55;animation:hwMoon 8s ease-in-out infinite;background:radial-gradient(circle at 30% 30%,#fff8dc,#ffd98a 58%,#e9a24a);box-shadow:0 0 34px 10px rgba(255,190,90,.26),0 0 90px 30px rgba(255,150,40,.12)}
+.hw-moon::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 62% 38%,rgba(170,110,40,.35) 0 7%,transparent 8%),radial-gradient(circle at 38% 66%,rgba(170,110,40,.3) 0 10%,transparent 11%),radial-gradient(circle at 70% 70%,rgba(170,110,40,.25) 0 5%,transparent 6%)}
+@keyframes hwMoon{50%{transform:translate3d(0,-6px,0)}}
+.hw-web{position:absolute;top:0;width:150px;height:150px;color:rgba(255,255,255,.17)}
+.hw-web.l{left:0}.hw-web.r{right:0;transform:scaleX(-1)}
+.hw-web svg{width:100%;height:100%}
+.hw-sp{position:absolute;top:0;left:var(--x);display:flex;flex-direction:column;align-items:center;transform-origin:top center;animation:hwSwing 4.5s ease-in-out infinite}
+.hw-sp u{display:block;width:1px;height:var(--l);background:rgba(255,255,255,.3)}
+.hw-sp b{font-size:18px;font-weight:400}
+@keyframes hwSwing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.hw-bat{position:absolute;left:-70px;top:var(--y);font-size:var(--s);animation:hwBat var(--d) linear var(--t) infinite;opacity:.7;will-change:transform}
+.hw-bat i{display:block;font-style:normal;animation:hwFlap .3s ease-in-out infinite alternate}
+@keyframes hwFlap{from{transform:scale(1,1)}to{transform:scale(.55,1.1)}}
+@keyframes hwBat{0%{transform:translate3d(0,0,0) rotate(-6deg)}25%{transform:translate3d(28vw,-34px,0) rotate(8deg)}50%{transform:translate3d(58vw,20px,0) rotate(-8deg)}75%{transform:translate3d(86vw,-26px,0) rotate(7deg)}100%{transform:translate3d(118vw,6px,0) rotate(-4deg)}}
+.hw-gh{position:absolute;bottom:-60px;left:var(--x);font-size:30px;opacity:0;animation:hwGh var(--d) ease-in-out var(--t) infinite;will-change:transform,opacity}
+@keyframes hwGh{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.5}50%{transform:translate3d(36px,-55vh,0)}88%{opacity:.35}100%{transform:translate3d(-24px,-112vh,0);opacity:0}}
+.hw-em{position:absolute;bottom:-10px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:#ffb347;box-shadow:0 0 8px 2px rgba(255,140,40,.7);opacity:0;animation:hwEm var(--d) linear var(--t) infinite}
+@keyframes hwEm{0%{transform:translate3d(0,0,0) scale(1);opacity:0}10%{opacity:.8}100%{transform:translate3d(var(--dx),-95vh,0) scale(.3);opacity:0}}
+.hw-pk{position:absolute;bottom:6px;font-size:34px;line-height:1;opacity:.9;text-shadow:0 0 16px rgba(255,130,20,.8);animation:hwPk 2.8s ease-in-out infinite}
+.hw-pk.l{left:8px}.hw-pk.r{right:8px;animation-delay:-1.4s}
+@keyframes hwPk{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-4px,0)}}
+.hw-fog{position:absolute;left:-20%;bottom:-40px;width:140%;height:180px;animation:hwFog 26s ease-in-out infinite alternate;will-change:transform;background:radial-gradient(50% 100% at 30% 100%,rgba(200,170,255,.13),transparent 70%),radial-gradient(40% 90% at 72% 100%,rgba(255,170,100,.1),transparent 70%)}
+.hw-fog.f2{animation-duration:36s;animation-direction:alternate-reverse;opacity:.7}
+@keyframes hwFog{from{transform:translate3d(-6%,0,0)}to{transform:translate3d(6%,0,0)}}
+@media (max-width:700px){.hw-deco .hw-x{display:none}.hw-web{width:90px;height:90px}.hw-moon{width:42px}.hw-pk{font-size:26px}}
+
+/* ---------- page ---------- */
+.shell{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:22px 22px 28px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chip-clock{font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:40px;padding:8px 16px}
+
+.hero{text-align:center;padding:34px 0 8px}
+.hero-icon{width:88px;height:88px;border-radius:50%;margin:0 auto 18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 18px 48px rgba(0,0,0,.5),0 0 40px rgba(124,108,255,.25);animation:drop .6s var(--spring) both}
+html.hw-on .hero-icon{box-shadow:0 18px 48px rgba(0,0,0,.5),0 0 44px rgba(255,110,20,.32)}
+.hero-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.logo{font-size:clamp(34px,8vw,48px);font-weight:800;letter-spacing:-.02em;line-height:1.1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;animation:drop .6s var(--spring) .06s both}
+html.hw-on .logo{filter:drop-shadow(0 0 12px rgba(255,120,20,.3))}
+.sub{margin-top:10px;font-size:15px;color:var(--muted);animation:drop .6s var(--spring) .12s both}
+@keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(26px) scale(.94)}60%{opacity:1}to{opacity:1;transform:none}}
+
+@property --vipA{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes vipSpin{to{--vipA:360deg}}
+@keyframes hwEm2{0%{transform:translate3d(0,0,0);opacity:0}15%{opacity:.9}100%{transform:translate3d(var(--dx),-90px,0) scale(.3);opacity:0}}
+.hw-hero-ring{position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;z-index:-1;animation:vipSpin 7s linear infinite;background:conic-gradient(from var(--vipA),rgba(255,140,40,0) 0%,#ff9a3c 12%,rgba(255,140,40,0) 32%,rgba(170,90,255,0) 55%,#b57bff 68%,rgba(170,90,255,0) 84%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.hw-hero-sp{position:absolute;inset:0;pointer-events:none;z-index:-1;overflow:hidden;border-radius:inherit}
+.hw-hero-sp i{position:absolute;bottom:-6px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:#ffb347;box-shadow:0 0 8px 2px rgba(255,140,40,.8);opacity:0;animation:hwEm2 var(--d) linear var(--t) infinite}
+.hw-banner{position:relative;isolation:isolate}
+.hw-banner .big{animation:hwPk 2.8s ease-in-out infinite}
+.hw-pop{position:fixed;top:var(--y);left:var(--x);z-index:950;font-size:26px;pointer-events:none;animation:hwPopUp 1.6s ease-out forwards}
+@keyframes hwPopUp{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),-170px) scale(1.4) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.hw-deco *,.hw-hero-ring,.hw-hero-sp i{animation:none!important}}
+
+/* ---------- Halloween banner (like the site's pass banner) ---------- */
+.hw-banner{display:none;align-items:center;gap:18px;margin:26px 0 0;padding:16px 20px;border-radius:22px;text-align:left;
+  background:radial-gradient(80% 160% at 6% 50%,rgba(255,120,20,.28),transparent 62%),linear-gradient(100deg,rgba(60,22,6,.6),rgba(34,14,56,.55) 70%),var(--panel2);
+  border:1px solid rgba(255,150,60,.38);box-shadow:0 14px 38px rgba(0,0,0,.35),0 0 40px rgba(255,110,20,.14),inset 0 1px 0 rgba(255,200,140,.25);animation:rise .6s var(--spring) .2s both}
+html.hw-on .hw-banner{display:flex}
+.hw-banner .big{font-size:40px;line-height:1;filter:drop-shadow(0 0 12px rgba(255,130,20,.7))}
+.hw-banner b{display:block;font-size:17px;margin-bottom:3px}
+.hw-banner span{font-size:13.5px;color:#d8c4ee;line-height:1.5}
+
+/* ---------- launch card ---------- */
+.launch-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;width:100%;margin-top:22px;text-align:left;padding:24px;border-radius:24px;background:var(--panel);backdrop-filter:blur(18px) saturate(165%);-webkit-backdrop-filter:blur(18px) saturate(165%);border:1px solid var(--border);box-shadow:0 24px 70px rgba(0,0,0,.45),inset 0 1.5px 0 rgba(255,255,255,.2);animation:rise .6s var(--spring) .28s both;transition:transform .3s var(--spring),border-color .3s,box-shadow .3s,background .3s}
+.launch-card:hover,.launch-card:focus-visible{outline:none;transform:translate3d(0,-6px,0) scale(1.012);border-color:rgba(124,108,255,.7);box-shadow:0 20px 46px rgba(124,108,255,.32);background:var(--panel2)}
+html.hw-on .launch-card:hover,html.hw-on .launch-card:focus-visible{border-color:rgba(255,150,60,.75);box-shadow:0 20px 46px rgba(255,110,20,.3)}
+.launch-card:active{transform:none;transition-duration:.08s}
+.lc-ic{flex:none;width:72px;height:72px;font-size:36px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:rgba(124,108,255,.14);transition:transform .35s var(--spring),background .3s}
+html.hw-on .lc-ic{background:rgba(255,120,20,.16)}
+.launch-card:hover .lc-ic{transform:scale(1.12) rotate(-6deg);background:rgba(124,108,255,.26)}
+html.hw-on .launch-card:hover .lc-ic{background:rgba(255,120,20,.28)}
+.lc-body{flex:1;min-width:0}
+.lc-body h3{font-size:21px;font-weight:700;margin-bottom:5px}
+.lc-body p{font-size:14px;line-height:1.5;color:var(--muted)}
+.lc-go{flex:none;background:linear-gradient(135deg,var(--accent),#5a4bff);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 6px 18px rgba(124,108,255,.28);transition:filter .15s}
+html.hw-on .lc-go{background:linear-gradient(135deg,#ff7a1a,#9a3df0);box-shadow:0 6px 18px rgba(255,110,20,.3)}
+.launch-card:hover .lc-go{filter:brightness(1.12)}
+.launch-card + .launch-card{margin-top:16px}
+.lc-note{margin-top:8px;text-align:center;font-size:12px;color:var(--muted);opacity:.8}
+
+/* ---------- features ---------- */
+.sec-title{margin:40px 0 4px;text-align:center;font-size:24px;font-weight:700}
+.sec-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:22px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.opt{position:relative;overflow:hidden;background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:22px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;animation:rise .55s var(--spring) both;transition:transform .3s var(--spring),border-color .3s,box-shadow .3s,background .3s}
+.opt:nth-child(1){animation-delay:.35s}.opt:nth-child(2){animation-delay:.41s}.opt:nth-child(3){animation-delay:.47s}.opt:nth-child(4){animation-delay:.53s}.opt:nth-child(5){animation-delay:.59s}.opt:nth-child(6){animation-delay:.65s}
+.opt::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);opacity:0;transition:opacity .3s}
+.opt:hover{transform:translate3d(0,-6px,0);border-color:rgba(124,108,255,.6);box-shadow:0 18px 40px rgba(124,108,255,.25);background:var(--panel2)}
+html.hw-on .opt{border-color:rgba(255,150,60,.2)}
+html.hw-on .opt:hover{border-color:rgba(255,150,60,.75);box-shadow:0 18px 40px rgba(255,110,20,.28)}
+.opt:hover::before{opacity:1}
+.opt .ic{width:60px;height:60px;font-size:30px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;background:rgba(124,108,255,.14);border-radius:18px;transition:transform .35s var(--spring),background .3s}
+html.hw-on .opt .ic{background:rgba(255,120,20,.14)}
+.opt:hover .ic{transform:scale(1.12) rotate(-6deg)}
+.opt h3{font-size:17px;font-weight:700;margin-bottom:5px}
+.opt p{font-size:13.5px;line-height:1.5;color:var(--muted)}
+.opt.wide{grid-column:1/-1}
+
+.more{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px}
+.more span{font-size:13px;font-weight:600;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:30px;padding:8px 15px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+
+/* ---------- footer ---------- */
+.foot{margin-top:auto;padding-top:40px;display:flex;flex-direction:column;align-items:center;gap:14px;font-size:13px;color:var(--muted);text-align:center}
+.tqq{display:flex;align-items:center;gap:14px;padding:10px 18px 10px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--border);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14);text-align:left;transition:border-color .25s,transform .25s var(--spring)}
+.tqq:hover{border-color:rgba(255,150,60,.5);transform:translateY(-2px)}
+.tqq-badge{padding:9px 14px;border-radius:999px;font-weight:800;font-size:13px;letter-spacing:.08em;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.tqq-txt small{display:block;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1px}
+.tqq-txt b{font-size:14px;color:var(--text)}
+.tqq-sis{display:flex;margin-left:4px}
+.tqq-sis i{width:18px;height:18px;border-radius:50%;background:var(--c);border:2px solid #17121f;margin-left:-6px;box-shadow:0 0 10px color-mix(in srgb,var(--c) 55%,transparent);transition:transform .3s var(--spring)}
+.tqq-sis i:first-child{margin-left:0}
+.tqq:hover .tqq-sis i{transform:translateY(-4px)}
+.tqq:hover .tqq-sis i:nth-child(2){transition-delay:.04s}.tqq:hover .tqq-sis i:nth-child(3){transition-delay:.08s}.tqq:hover .tqq-sis i:nth-child(4){transition-delay:.12s}.tqq:hover .tqq-sis i:nth-child(5){transition-delay:.16s}
+@media(max-width:480px){.tqq{border-radius:22px;flex-wrap:wrap;justify-content:center;padding:12px 16px}.tqq-sis{margin:0}}
+.foot-card{display:flex;align-items:center;gap:14px;text-align:left;padding:12px 22px 12px 14px;border-radius:20px;background:var(--panel);border:1px solid var(--border);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14)}
+.foot-card img{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.foot-card b{display:block;font-size:15px;color:var(--text);margin-bottom:2px}
+.foot strong{color:var(--text);font-weight:700}
+
+.hw-switch{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--border);border-radius:40px;padding:7px 10px 7px 14px;font-size:13px;color:var(--text);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:border-color .15s,transform .15s}
+.hw-switch:hover{border-color:var(--accent);transform:translateY(-1px)}
+.hw-switch b{font-weight:600}
+.sw{position:relative;width:38px;height:22px;border-radius:20px;background:rgba(255,255,255,.14);transition:background .25s}
+.sw i{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .3s var(--spring)}
+html.hw-on .sw{background:linear-gradient(135deg,#ff7a1a,#9a3df0)}
+html.hw-on .sw i{transform:translateX(16px)}
+
+/* ---------- Hubs & Tools modal ---------- */
+.m-outdated{font-size:12px;line-height:1.4;color:#ffcf8a;background:rgba(255,170,60,.1);border:1px solid rgba(255,170,60,.28);border-radius:10px;padding:7px 10px;margin:-4px 0 10px}
+.hub-row.locked{cursor:not-allowed;opacity:.85}
+.hub-row.locked:hover{transform:none}
+.hub-row.locked:hover .hub-arrow{color:var(--muted);transform:none}
+.modal-bg{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,7,16,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+html.hw-on .modal-bg{background:rgba(14,5,22,.72)}
+.modal-bg.show{display:flex;animation:fade .25s ease}
+.modal-bg.closing{opacity:0;transition:opacity .2s}
+@keyframes fade{from{opacity:0}}
+.modal{width:100%;max-width:760px;height:min(640px,88vh);display:flex;flex-direction:column;padding:22px;border-radius:24px;background:rgba(17,18,30,.94);border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12);animation:rise .4s var(--spring)}
+html.hw-on .modal{border-color:rgba(255,150,60,.26);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 50px rgba(255,100,20,.12)}
+.m-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.m-head h2{font-size:22px}
+.m-x{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);font-size:15px;transition:background .15s}
+.m-x:hover{background:rgba(255,255,255,.16)}
+.m-hint{color:var(--muted);font-size:13px;margin:4px 0 12px}
+.m-search{width:100%;background:rgba(8,9,12,.6);border:1px solid var(--border);border-radius:12px;padding:11px 14px;font:inherit;font-size:14px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+.m-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,255,.18)}
+html.hw-on .m-search:focus{box-shadow:0 0 0 3px rgba(255,122,26,.2)}
+.m-tabs{display:flex;gap:6px;margin:12px 0 4px;padding:5px;border-radius:14px;background:rgba(8,9,12,.5);overflow-x:auto}
+.m-tab{flex:1;white-space:nowrap;padding:9px 10px;border-radius:10px;background:transparent;color:var(--muted);font-weight:600;font-size:13px;transition:background .2s,color .2s}
+.m-tab small{opacity:.7;margin-left:4px}
+.m-tab.on{color:#fff;background:linear-gradient(135deg,var(--accent),#5a4bff);box-shadow:0 4px 14px rgba(124,108,255,.35)}
+html.hw-on .m-tab.on{background:linear-gradient(135deg,#ff7a1a,#9a3df0);box-shadow:0 4px 14px rgba(255,110,20,.35)}
+.m-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.m-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.07);color:var(--muted);border:1px solid transparent}
+.m-chip.on{color:var(--text);border-color:var(--accent)}
+.m-list{flex:1;overflow-y:auto;margin-top:10px;padding-right:4px;display:flex;flex-direction:column;gap:8px}
+.m-list::-webkit-scrollbar{width:8px}.m-list::-webkit-scrollbar-thumb{background:rgba(124,108,255,.45);border-radius:8px}
+html.hw-on .m-list::-webkit-scrollbar-thumb{background:rgba(255,140,50,.45)}
+.hub-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--border);cursor:pointer;text-align:left;width:100%;transition:transform .2s var(--spring),border-color .2s,background .2s;animation:rise .35s var(--spring) both}
+.hub-row:hover{transform:translateX(4px);border-color:rgba(124,108,255,.55);background:rgba(255,255,255,.07)}
+html.hw-on .hub-row:hover{border-color:rgba(255,150,60,.55)}
+.hub-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none;overflow:hidden}
+.hub-row .nm{flex:1;min-width:0}
+.hub-nm{font-weight:700;font-size:15px}
+.hub-desc{font-size:12.5px;line-height:1.45;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.hub-arrow{color:var(--muted);font-size:17px;transition:color .2s,transform .2s}
+.hub-row:hover .hub-arrow{color:#ffb26b;transform:translate(2px,-2px)}
+.m-empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:14px}
+.m-credit{font-size:12px;color:var(--muted);padding:2px 4px}
+
+
+/* ---------- Launch mode picker ---------- */
+.modal.mode{height:auto!important;min-height:0;flex:none;max-width:640px;max-height:calc(100vh - 24px);padding:22px 22px 16px;position:relative;overflow-x:hidden;overflow-y:auto}
+.modal.mode::before{content:"";position:absolute;top:-120px;left:50%;width:420px;height:240px;margin-left:-210px;border-radius:50%;background:radial-gradient(closest-side,rgba(124,108,255,.28),transparent);pointer-events:none}
+html.hw-on .modal.mode::before{background:radial-gradient(closest-side,rgba(255,120,20,.26),transparent)}
+.mode-x{position:absolute;top:16px;right:16px;z-index:2}
+.mode-top{position:relative;text-align:center}
+.mode-top .mi{width:48px;height:48px;margin:0 auto 10px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;background:linear-gradient(135deg,rgba(124,108,255,.28),rgba(255,108,180,.18));border:1px solid var(--border)}
+html.hw-on .mode-top .mi{background:linear-gradient(135deg,rgba(255,122,26,.3),rgba(168,85,255,.2))}
+.mode-top h2{font-size:21px;letter-spacing:-.01em}
+.mode-top p{margin-top:6px;font-size:13.5px;color:var(--muted)}
+.mode-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;padding-top:6px;transition:opacity .25s,filter .25s}
+.mode-card{position:relative;display:flex;flex-direction:column;gap:10px;text-align:left;padding:12px 12px 16px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid var(--border);transition:transform .3s var(--spring),border-color .2s,background .2s,box-shadow .3s}
+.mode-card:hover,.mode-card:focus-visible{outline:none;transform:translateY(-5px);background:rgba(255,255,255,.06);border-color:rgba(124,108,255,.7);box-shadow:0 18px 40px rgba(124,108,255,.25)}
+html.hw-on .mode-card:hover,html.hw-on .mode-card:focus-visible{border-color:rgba(255,150,60,.8);box-shadow:0 18px 40px rgba(255,110,20,.28)}
+.mode-card:active{transform:translateY(-1px) scale(.99);transition-duration:.08s}
+.mode-card.rec{border-color:rgba(124,108,255,.55);background:linear-gradient(180deg,rgba(124,108,255,.14),rgba(124,108,255,.04))}
+html.hw-on .mode-card.rec{border-color:rgba(255,150,60,.6);background:linear-gradient(180deg,rgba(255,122,26,.15),rgba(168,85,255,.05))}
+.mode-tag{position:absolute;top:-10px;right:14px;z-index:3;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:4px 11px;border-radius:20px;color:#fff;background:linear-gradient(135deg,var(--accent),#5a4bff);box-shadow:0 6px 16px rgba(124,108,255,.4)}
+html.hw-on .mode-tag{background:linear-gradient(135deg,#ff7a1a,#9a3df0);box-shadow:0 6px 16px rgba(255,110,20,.4)}
+/* mini browser previews */
+.pv{position:relative;height:96px;border-radius:12px;overflow:hidden;background:#0a0b14;border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column}
+.pv-tabs{display:flex;gap:3px;padding:6px 6px 0;background:#15162a}
+.pv-tabs span{font-size:8px;font-weight:600;color:#7d80a8;padding:4px 9px;border-radius:6px 6px 0 0;background:rgba(255,255,255,.05);white-space:nowrap}
+.pv-tabs span.on{color:#fff;background:#0a0b14}
+.pv-bar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:#15162a}
+.pv-tabs + .pv-bar{background:#0a0b14;border-bottom:1px solid rgba(255,255,255,.06)}
+.pv-bar i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.22)}
+.pv-bar i:nth-child(1){background:#ff5f57}.pv-bar i:nth-child(2){background:#febc2e}.pv-bar i:nth-child(3){background:#28c840}
+.pv-bar em{flex:1;height:9px;margin-left:6px;border-radius:6px;background:rgba(255,255,255,.08)}
+.pv-body{flex:1;position:relative;padding:8px;display:flex;gap:6px}
+.pv-body .sb{width:26%;border-radius:6px;background:rgba(124,108,255,.25)}
+.pv-body .ct{flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.pv-body .ct s{display:block;height:11px;border-radius:6px;background:rgba(255,255,255,.1);text-decoration:none}
+.pv-body .ct s:nth-child(2){width:72%;margin-left:auto;background:rgba(124,108,255,.5)}
+.pv-body .ct s:nth-child(3){width:55%}
+html.hw-on .pv-body .sb{background:rgba(255,122,26,.28)}
+html.hw-on .pv-body .ct s:nth-child(2){background:rgba(255,122,26,.55)}
+.pv-frame .pv-body::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.1) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s ease}
+.mode-card:hover .pv-body::after{transform:translateX(120%)}
+.mode-card h3{font-size:16.5px;font-weight:700;padding:0 4px}
+.mode-card p{font-size:13px;line-height:1.5;color:var(--muted);padding:0 4px;margin-top:-6px}
+.mode-pts{display:flex;flex-wrap:wrap;gap:6px;padding:0 4px;margin-top:auto}
+.mode-pts span{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.07);color:#c9cbee}
+.mode-pts span.g{background:rgba(76,214,160,.14);color:#6fe8bb}
+
+.mode-note{display:flex;align-items:flex-start;gap:10px;margin:2px 4px 0;padding:10px 12px;border-radius:12px;font-size:12.5px;line-height:1.45;color:#c9cbee;background:rgba(124,108,255,.1);border:1px solid rgba(124,108,255,.28)}
+html.hw-on .mode-note{background:rgba(255,122,26,.1);border-color:rgba(255,150,60,.3)}
+.mode-note b{color:var(--text);font-weight:700}
+.mn-ic{flex:none;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:rgba(124,108,255,.22)}
+html.hw-on .mn-ic{background:rgba(255,122,26,.24)}
+.mode-pts span.a{background:rgba(124,108,255,.2);color:#c8c0ff}
+html.hw-on .mode-pts span.a{background:rgba(255,122,26,.2);color:#ffc08a}
+.mode-card{height:100%}
+.mode-pts{flex-wrap:nowrap}
+.mode-pts span{white-space:nowrap}
+@media(max-width:560px){.mode-pts{flex-wrap:wrap}}
+/* loading state */
+.mode-status{display:none;align-items:center;justify-content:center;gap:12px;margin-top:18px;padding:13px 16px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:14px;font-weight:600}
+.modal.mode.busy .mode-status{display:flex;animation:fade .25s ease}
+.modal.mode.busy .mode-grid{opacity:.3;filter:blur(1px);pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);border-top-color:var(--accent);animation:spin .75s linear infinite;flex:none}
+html.hw-on .spin{border-top-color:#ff9a3c}
+.mode-status.err .spin{display:none}
+.mode-status.err{color:#ff8da0;border-color:rgba(255,93,115,.4);background:rgba(255,93,115,.08)}
+.mode-status button{background:linear-gradient(135deg,var(--accent),#5a4bff);padding:6px 14px;border-radius:9px;font-weight:700;font-size:12.5px}
+html.hw-on .mode-status button{background:linear-gradient(135deg,#ff7a1a,#9a3df0)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mode-foot{margin-top:12px;text-align:center;font-size:12px;color:var(--muted);opacity:.85}
+@media(max-height:640px){.pv,.mode-top .mi,.mode-foot{display:none}.mode-grid{margin-top:14px}.mode-card p{display:none}}
+@media(max-width:560px){
+  .modal.mode{padding:24px 16px 18px}
+  .mode-grid{grid-template-columns:1fr;gap:18px}
+  .pv{height:88px}
+}
+
+
+/* ---------- Launch chooser + Suki's Games ---------- */
+.pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.pick-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:18px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid var(--border);transition:transform .3s var(--spring),border-color .2s,background .2s,box-shadow .3s}
+.pick-card:hover,.pick-card:focus-visible{outline:none;transform:translateY(-5px);background:rgba(255,255,255,.06);border-color:rgba(124,108,255,.7);box-shadow:0 18px 40px rgba(124,108,255,.25)}
+html.hw-on .pick-card:hover,html.hw-on .pick-card:focus-visible{border-color:rgba(255,150,60,.8);box-shadow:0 18px 40px rgba(255,110,20,.28)}
+.pick-card .pi{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(124,108,255,.16);transition:transform .35s var(--spring)}
+html.hw-on .pick-card .pi{background:rgba(255,120,20,.16)}
+.pick-card:hover .pi{transform:scale(1.12) rotate(-6deg)}
+.pick-card h3{font-size:17px;font-weight:700}
+.pick-card p{font-size:13px;line-height:1.5;color:var(--muted)}
+@media(max-width:560px){.pick-grid{grid-template-columns:1fr}}
+.modal.games{max-width:680px;height:min(620px,88vh)}
+.g-list{flex:1;overflow-y:auto;margin-top:14px;padding-right:4px;display:flex;flex-direction:column;gap:12px}
+.g-list::-webkit-scrollbar{width:8px}.g-list::-webkit-scrollbar-thumb{background:rgba(124,108,255,.45);border-radius:8px}
+html.hw-on .g-list::-webkit-scrollbar-thumb{background:rgba(255,140,50,.45)}
+.g-back{background:rgba(255,255,255,.08);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;transition:background .15s}
+.g-back:hover{background:rgba(255,255,255,.16)}
+.g-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.g-tags span{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.07);color:#c9cbee}
+
+/* The Long Hall: horror themed button */
+.g-card{position:relative;overflow:hidden;display:block;width:100%;text-align:left;padding:22px 22px 20px;border-radius:18px;color:#e6dfd3;animation:rise .45s var(--spring) both;
+  background:radial-gradient(120% 140% at 85% 0%,rgba(150,20,20,.38),transparent 60%),radial-gradient(90% 80% at 0% 100%,rgba(70,10,10,.55),transparent 70%),linear-gradient(180deg,#140808,#070404);
+  border:1px solid rgba(160,35,35,.5);box-shadow:0 14px 36px rgba(0,0,0,.6),inset 0 0 60px rgba(0,0,0,.75),0 0 0 1px rgba(0,0,0,.6);
+  transition:transform .3s var(--spring),border-color .25s,box-shadow .3s}
+.g-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
+.g-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:46%;pointer-events:none;
+  background:linear-gradient(0deg,rgba(0,0,0,.65),transparent);}
+.g-card>*{position:relative;z-index:1}
+.g-card:hover,.g-card:focus-visible{outline:none;transform:translateY(-4px) scale(1.01);border-color:rgba(230,60,50,.85);box-shadow:0 18px 44px rgba(0,0,0,.65),0 0 46px rgba(200,30,30,.38),inset 0 0 60px rgba(0,0,0,.7)}
+.g-card:hover{animation:gFlick .5s steps(2,end) 1}
+@keyframes gFlick{0%{filter:brightness(1)}20%{filter:brightness(.55)}35%{filter:brightness(1.15)}55%{filter:brightness(.7)}100%{filter:brightness(1)}}
+.g-card .g-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.g-horror{font-family:'IM Fell English',Georgia,serif;font-style:italic;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;border-radius:3px;color:#ffd9d2;background:rgba(150,20,20,.65);border:1px solid rgba(255,90,70,.5);box-shadow:0 0 14px rgba(200,30,30,.5);animation:gPulse 3s ease-in-out infinite}
+@keyframes gPulse{50%{box-shadow:0 0 6px rgba(200,30,30,.25);opacity:.85}}
+.g-mp{font-family:'IM Fell English',Georgia,serif;font-style:italic;font-size:13px;color:#b9a99a}
+.g-title{font-family:Rye,'IM Fell English',Georgia,serif;font-size:clamp(28px,6vw,38px);line-height:1.02;letter-spacing:.02em;color:#e8e0d2;text-shadow:0 2px 0 #000,0 0 18px rgba(190,30,30,.55)}
+.g-sub{font-family:'IM Fell English',Georgia,serif;font-style:italic;font-size:19px;margin:4px 0 12px;color:#d9cdbd}
+.g-desc{font-family:'IM Fell English',Georgia,serif;font-size:15px;line-height:1.5;color:#c9bcab;max-width:46ch}
+.g-card .g-tags span{font-family:'IM Fell English',Georgia,serif;font-style:italic;background:rgba(255,255,255,.06);color:#d8c9b8;border:1px solid rgba(255,255,255,.08)}
+.g-play{display:inline-block;margin-top:14px;font-family:'IM Fell English',Georgia,serif;font-style:italic;font-size:20px;color:#fff1e6;text-shadow:0 0 14px rgba(255,70,50,.7);transition:letter-spacing .25s,text-shadow .25s}
+.g-card:hover .g-play{letter-spacing:.05em;text-shadow:0 0 22px rgba(255,70,50,.95)}
+@media (prefers-reduced-motion:reduce){.g-card:hover{animation:none}.g-horror{animation:none}}
+
+
+/* ---------- horror text polish (overrides) ---------- */
+.g-card{padding:24px 24px 22px}
+.g-horror{font-family:Rye,'IM Fell English',Georgia,serif;font-style:normal;font-size:11.5px;letter-spacing:.22em;padding:4px 11px 3px;border-radius:2px;color:#ffe3dc;text-shadow:0 0 8px rgba(255,80,60,.9),0 1px 0 #000;background:linear-gradient(180deg,rgba(170,25,25,.85),rgba(95,10,10,.85));border:1px solid rgba(255,100,80,.55)}
+.g-horror::before{content:"\2620\00a0";letter-spacing:0}
+.g-mp{font-size:14px;color:#c9b8a6;text-shadow:0 1px 2px #000}
+.g-title{font-size:clamp(34px,7.4vw,50px);line-height:.98;letter-spacing:.03em;color:#f0e7d6;paint-order:stroke fill;-webkit-text-stroke:1.5px rgba(0,0,0,.65);
+  text-shadow:0 1px 0 #000,0 2px 0 #000,0 3px 0 rgba(0,0,0,.9),4px 5px 0 rgba(90,8,8,.75),0 0 12px rgba(220,40,30,.6),0 0 34px rgba(170,20,20,.65),0 0 70px rgba(130,10,10,.45);
+  animation:gTitle 6s infinite}
+@keyframes gTitle{0%,89%,100%{opacity:1}90%{opacity:.55}91%{opacity:1}93%{opacity:.7}94%{opacity:1}}
+.g-sub{position:relative;font-size:23px;margin:6px 0 16px;padding-bottom:12px;color:#ead9c4;letter-spacing:.02em;text-shadow:0 1px 0 #000,0 0 14px rgba(200,30,30,.55)}
+.g-sub::after{content:"";position:absolute;left:0;bottom:0;width:min(220px,60%);height:2px;border-radius:2px;background:linear-gradient(90deg,#c01f1a,rgba(192,31,26,.4) 60%,transparent);box-shadow:0 0 10px rgba(220,40,30,.7)}
+.g-desc{font-size:16px;line-height:1.55;color:#dccfbd;text-shadow:0 1px 3px #000;max-width:48ch}
+.g-card .g-tags span{font-size:12.5px;color:#e2d3c0;border-color:rgba(200,60,50,.28);background:rgba(120,15,15,.28)}
+.g-play{font-size:22px;color:#ffeee4;text-shadow:0 0 12px rgba(255,70,50,.85),0 0 28px rgba(200,20,20,.7)}
+@media (prefers-reduced-motion:reduce){.g-title{animation:none}}
+
+/* ---------- full screen iframe + launch transition ---------- */
+#appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2000;background:#0b0c1a;display:block;opacity:0;transform:scale(1.03);transition:opacity .6s ease,transform .7s var(--spring);will-change:opacity,transform}
+#appFrame.show{opacity:1;transform:none}
+html.app-launching .shell,html.app-launching .bgfx,html.app-launching .hw-deco,html.app-launching .modal-bg{transition:opacity .55s ease,transform .6s ease,filter .55s ease!important;opacity:0!important;transform:scale(.96);filter:blur(8px);pointer-events:none}
+html.app-open .shell,html.app-open .bgfx,html.app-open .hw-deco,html.app-open .modal-bg,html.app-open .toasts,html.app-open .hw-pop,html.app-open .hw-ripple{display:none!important}
+html.app-open,html.app-open body{overflow:hidden;background:#0b0c1a}
+@media (prefers-reduced-motion:reduce){#appFrame,html.app-launching .shell{transition-duration:.01s!important}}
+
+/* ---------- toast ---------- */
+.toasts{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;max-width:340px;background:rgba(15,16,32,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:14px;padding:12px 18px;font-size:14px;box-shadow:0 12px 36px rgba(0,0,0,.45);animation:tin .4s var(--spring),tout .3s ease 2.8s forwards}
+.toast i{width:8px;height:8px;border-radius:50%;flex:none}
+.toast.ok i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.toast.err i{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+.toast.load i{background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.4}}
+@keyframes tin{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(40px)}}
+
+@media(max-width:620px){
+  .launch-card{flex-direction:column;text-align:center}
+  .opts{grid-template-columns:1fr}
+  .hw-banner{flex-direction:column;text-align:center}
+  .toasts{left:14px;right:14px;top:14px}.toast{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important}}
 </style>
 </head>
 <body>
-<iframe id="frame" title="The Long Halls" allow="fullscreen; autoplay; microphone; camera; clipboard-read; clipboard-write; gamepad; geolocation" allowfullscreen></iframe>
-<div id="status"><div class="spinner"></div><div id="msg">Loading…</div></div>
+
+<div class="bgfx"></div>
+<div class="toasts" id="toasts"></div>
+
+<div class="modal-bg" id="pickBg"><div class="modal mode" id="pickBox" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+  <button class="m-x mode-x" id="pickX" type="button" aria-label="Close">✕</button>
+  <div class="mode-top">
+    <div class="mi">🚀</div>
+    <h2 id="pickTitle">What do you want to launch?</h2>
+    <p>Pick a site to open</p>
+  </div>
+  <div class="pick-grid">
+    <button class="pick-card" id="pickHub" type="button"><div class="pi">💬</div><h3>Itsuki's Chat Hub</h3><p>The global chat hub with rooms, DMs, music, the VIP lounge and the Halloween pass.</p></button>
+    <button class="pick-card" id="pickGames" type="button"><div class="pi">🕹️</div><h3>Suki's Games</h3><p>Games and sites I've made. Browse the list and play them right here.</p></button>
+  </div>
+  <div class="mode-foot">Press Esc to cancel</div>
+</div></div>
+
+<div class="modal-bg" id="gamesBg"><div class="modal games" id="gamesBox" role="dialog" aria-modal="true" aria-labelledby="gamesTitle">
+  <div class="m-head"><button class="g-back" id="gamesBack" type="button">← Back</button><h2 id="gamesTitle">🕹️ Suki's Games</h2><button class="m-x" id="gamesX" type="button" aria-label="Close">✕</button></div>
+  <div class="m-hint">Games and sites I've made. Pick one, then choose how it opens.</div>
+  <div class="g-list" id="gamesList"></div>
+</div></div>
+
+<div class="modal-bg" id="modeBg"><div class="modal mode" id="modeBox" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
+  <button class="m-x mode-x" id="modeX" type="button" aria-label="Close">✕</button>
+  <div class="mode-top">
+    <div class="mi">🚀</div>
+    <h2 id="modeTitle">Launch Itsuki's Chat Hub</h2>
+    <p id="modeSub">Choose how you want it to open</p>
+  </div>
+  <div class="mode-grid">
+    <button class="mode-card" id="modeIframe" type="button">
+      <div class="pv pv-frame"><div class="pv-bar"><i></i><i></i><i></i><em></em></div><div class="pv-body"><div class="sb"></div><div class="ct"><s></s><s></s><s></s></div></div></div>
+      <h3>Full screen iframe</h3>
+      <p>Same tab. The launcher disappears and only the hub is on screen.</p>
+      <div class="mode-pts"><span class="g">No popups</span><span>Same tab</span><span>Fastest</span></div>
+    </button>
+    <button class="mode-card rec" id="modeBlank" type="button">
+      <span class="mode-tag">Recommended</span>
+            <div class="pv pv-tab"><div class="pv-tabs"><span>Launcher</span><span class="on">about:blank</span></div><div class="pv-bar"><i></i><i></i><i></i><em></em></div><div class="pv-body"><div class="sb"></div><div class="ct"><s></s><s></s><s></s></div></div></div>
+      <h3>New tab (about:blank)</h3>
+      <p>Opens the hub in a separate blank tab next to this one.</p>
+      <div class="mode-note"><span class="mn-ic">⏱</span><span><b>Waits 6 seconds</b> before doing anything once launched, with <b>Quizlet</b> showing behind it.</span></div>
+      <div class="mode-pts"><span>New tab</span><span class="a">6s delay</span><span>Popups needed</span></div>
+    </button>
+  </div>
+  <div class="mode-status" id="modeStatus" role="status" aria-live="polite"><span class="spin"></span><span id="modeStatusTxt">Loading...</span><button id="modeRetry" type="button" hidden>Retry</button></div>
+  <div class="mode-foot">Press Esc to cancel</div>
+</div></div>
+
+<div class="modal-bg" id="hubBg"><div class="modal" role="dialog" aria-modal="true" aria-label="Hubs and Tools">
+  <div class="m-head"><h2>🎮 Hubs &amp; Tools</h2><button class="m-x" id="hubX" type="button" aria-label="Close">✕</button></div>
+  <div class="m-hint">Game sites, movie hubs, proxies, apps, tools and links. Sign in to use them.</div>
+  <div class="m-outdated">⚠️ This list may be outdated. There are more links, hubs and tools available on the website itself.</div>
+  <input class="m-search" id="hubSearch" placeholder="Search everything..." autocomplete="off">
+  <div class="m-tabs" id="hubTabs" role="tablist"></div>
+  <div class="m-chips" id="hubChips"></div>
+  <div class="m-list" id="hubList"><div class="m-empty">Loading...</div></div>
+</div></div>
+
+<div class="shell">
+  <div class="topbar"><button class="hw-switch" id="hwToggle" type="button" role="switch" aria-checked="true" title="Halloween theme"><span>🎃</span><b>Halloween</b><em class="sw"><i></i></em></button><div class="chip-clock" id="clock"></div></div>
+
+  <header class="hero">
+    <div class="hero-icon"><img src="https://aniitsukicoded.github.io/backups/icon.png" alt="Itsukis Chat Hub"></div>
+    <h1 class="logo">Itsukis Chat Hub</h1>
+    <p class="sub">A global chatting hub made by Jace, inspired by VUS chat rooms.</p>
+  </header>
+
+  <div class="hw-banner">
+    <span class="hw-hero-ring"></span><span class="hw-hero-sp" id="bannerSp" aria-hidden="true"></span>
+    <span class="big">🎃</span>
+    <div><b>Halloween Season Pass is live</b><span>Spend time online to level up through 30 levels of spooky badges, name effects and permanent roles. Runs until early November.</span></div>
+  </div>
+
+  <button class="launch-card" id="launch" type="button" aria-label="Open Itsuki's Chat Hub">
+    <div class="lc-ic">💬</div>
+    <div class="lc-body"><h3>Itsuki's Chat Hub</h3><p>Open it in a full screen iframe or a new tab. Sign in with your account and jump straight into chat.</p></div>
+    <span class="lc-go">Launch</span>
+  </button>
+
+  <button class="launch-card" id="hubsBtn" type="button" aria-label="Open Hubs and Tools">
+    <div class="lc-ic">🎮</div>
+    <div class="lc-body"><h3>Hubs &amp; Tools</h3><p>Browse every game hub, app, tool, link and proxy in one place. Sign in to use them.</p></div>
+    <span class="lc-go">Browse</span>
+  </button>
+
+  <h2 class="sec-title">What's inside</h2>
+  <p class="sec-sub">Everything you get on the main site</p>
+
+  <section class="opts">
+    <div class="opt"><div class="ic">🎮</div><h3>Hubs &amp; Tools</h3><p>Apps, hubs, tools, links and proxies in one place, all in one searchable menu.</p></div>
+    <div class="opt"><div class="ic">🌍</div><h3>Itsukis Chat</h3><p>Global chat, private rooms and announcements. Send up to 10 images per message and @ping people.</p></div>
+    <div class="opt"><div class="ic">💬</div><h3>Itsuki DMs</h3><p>Private chats with a friend request system.</p></div>
+    <div class="opt"><div class="ic">⚙️</div><h3>Settings</h3><p>Style your chat bubbles and text, set a personal background, tune UI blur and transparency, and add pronouns to your profile.</p></div>
+    <div class="opt"><div class="ic">🎵</div><h3>Music player</h3><p>Search songs and play them while you chat, with a seekable progress bar.</p></div>
+    <div class="opt"><div class="ic">🎡</div><h3>VIP Lounge &amp; Daily Spin</h3><p>A VIP room, Legend and Star roles, and a daily spin for rewards.</p></div>
+    <div class="opt wide"><div class="ic">🎃</div><h3>Halloween Pass</h3><p>Bats, ghosts, fog and cobwebs with an orange and purple look. Level up for titles, badges and glowing name effects that everyone can see, and equip them from the cosmetics menu.</p></div>
+  </section>
+
+  <div class="more">
+    <span>📜 Server rules</span>
+    <span>🔔 Rewards counter</span>
+    <span>🐌 Anti-lag mode</span>
+    <span>☁️ Settings saved to your account</span>
+  </div>
+
+  <footer class="foot">
+    <div class="foot-card">
+      <img src="https://aniitsukicoded.github.io/backups/icon.png" alt="">
+      <div><b>Itsukis Chat Hub Launcher</b><span>Made by <strong>Jace</strong></span></div>
+    </div>
+    <div class="tqq">
+      <span class="tqq-badge">TQQ</span>
+      <div class="tqq-txt"><small>Name inspiration</small><b>The Quintessential Quintuplets</b></div>
+      <div class="tqq-sis" aria-hidden="true"><i style="--c:#ff9ec4"></i><i style="--c:#b78cff"></i><i style="--c:#5aa9ff"></i><i style="--c:#5ee08a"></i><i style="--c:#ff5d73"></i></div>
+    </div>
+  </footer>
+</div>
 
 <script>
-(function () {
-  // ====== CONFIG ======
-  var OWNER = "AniItsukiCoded";
-  var REPO = "The-Long-Hall";
-  var BRANCH = "main";
-  var FILE = "index.html";
-  var RAW_BASE = "https://raw.githubusercontent.com/" + OWNER + "/" + REPO + "/refs/heads/" + BRANCH + "/";
-  var RAW_URL = RAW_BASE + FILE;
-  var COMMIT_API = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/commits/" + BRANCH;
-  var POLL_FILE_MS = 30 * 1000;      // re-check index.html every 30s
-  var POLL_COMMIT_MS = 2 * 60 * 1000; // check repo's latest commit every 2 min (catches changes to other files)
-  // =====================
+// ===================== CONFIG =====================
+const MAIN_APP = {
+  name: "Itsuki's Chat Hub",
+  url: "https://raw.githubusercontent.com/jace01b-web/itsukis-chat-hub-obfuscated/refs/heads/main/index.html"
+};
+let APP = MAIN_APP;   // whatever is currently being launched
 
-  var frame = document.getElementById("frame");
-  var status = document.getElementById("status");
-  var msg = document.getElementById("msg");
-
-  var currentHash = null;
-  var currentSha = null;
-  var currentBlobUrl = null;
-  var loading = false;
-
-  function hash(str) { // fast FNV-1a
-    var h = 0x811c9dc5;
-    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
-    return h.toString(16) + ":" + str.length;
+// ===== SUKI'S GAMES =====
+// Add more games/sites here. direct:true loads the url straight into the iframe / tab (best for hosted games).
+// direct:false fetches the raw HTML and writes it in, same as the main hub (use for raw.githubusercontent links).
+const GAMES = [
+  {
+    id: "long-hall",
+    name: "The Long Hall",
+    subtitle: "the boiled one",
+    url: "https://raw.githubusercontent.com/AniItsukiCoded/The-Long-Hall-AutoUpd/refs/heads/main/index.html",
+    direct: false,      // raw.githubusercontent link: fetched and written in, same as the main hub
+    horror: true,
+    tags: ["Horror", "Multiplayer", "Solo or co-op"],
+    desc: "The full release version of The Long Hall: the boiled one. Play solo or with friends and try to escape the boiled one."
   }
+];
 
-  function fetchText(url) {
-    var sep = url.indexOf("?") === -1 ? "?" : "&";
-    return fetch(url + sep + "_=" + Date.now(), { cache: "no-store" }).then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.text();
+// ===================== UTILITIES =====================
+function escapeHtml(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function showToast(msg,type){
+  const t=document.createElement("div");
+  t.className="toast "+(type||"ok");
+  t.innerHTML='<i></i>'+escapeHtml(msg);
+  document.getElementById("toasts").appendChild(t);
+  setTimeout(()=>t.remove(),3300);
+}
+
+// ===================== CLOCK =====================
+function tick(){document.getElementById("clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+setInterval(tick,1000);tick();
+
+// ===================== HALLOWEEN (same logic as the site) =====================
+const HW_KEY='ich.hwTheme';
+function hwDeco(on){
+  document.documentElement.classList.toggle('hw-on',on);
+  let d=document.getElementById('hwDeco');
+  if(!on){
+    if(!d)return;
+    d.classList.remove('in');                         // pieces glide back out and the layer fades
+    clearTimeout(d._rm);d._rm=setTimeout(()=>d.remove(),1200);
+    return;
+  }
+  if(d){clearTimeout(d._rm);requestAnimationFrame(()=>d.classList.add('in'));return}
+  const r=(a,b)=>(a+Math.random()*(b-a)).toFixed(2);
+  const web='<svg viewBox="0 0 120 120"><g fill="none" stroke="currentColor" stroke-width="1"><path d="M0 0L120 0M0 0L0 120M0 0L100 60M0 0L60 100M0 0L115 25M0 0L25 115"/><path d="M0 30Q18 18 30 0M0 55Q32 36 55 0M0 82Q50 58 82 0M0 110Q70 82 110 0"/></g></svg>';
+  let h='<i class="hw-vig"></i><i class="hw-moon"></i><i class="hw-fog"></i><i class="hw-fog f2"></i><div class="hw-web l">'+web+'</div><div class="hw-web r">'+web+'</div>'
+    +'<span class="hw-sp" style="--x:14%;--l:60px"><u></u><b>🕷️</b></span><span class="hw-sp hw-x" style="--x:86%;--l:90px"><u></u><b>🕷️</b></span>';
+  for(let i=0;i<7;i++)h+='<b class="hw-bat'+(i>2?' hw-x':'')+'" style="--y:'+r(6,55)+'vh;--s:'+r(16,28)+'px;--d:'+r(16,30)+'s;--t:-'+r(0,24)+'s"><i>🦇</i></b>';
+  for(let i=0;i<4;i++)h+='<b class="hw-gh'+(i>1?' hw-x':'')+'" style="--x:'+r(4,92)+'%;--d:'+r(20,34)+'s;--t:-'+r(0,30)+'s">👻</b>';
+  for(let i=0;i<16;i++)h+='<i class="hw-em'+(i>7?' hw-x':'')+'" style="--x:'+r(0,100)+'%;--s:'+r(2,5)+'px;--dx:'+r(-60,60)+'px;--d:'+r(9,18)+'s;--t:-'+r(0,16)+'s"></i>';
+  h+='<b class="hw-pk l">🎃</b><b class="hw-pk r hw-x">🎃</b>';
+  d=document.createElement('div');d.id='hwDeco';d.className='hw-deco';d.setAttribute('aria-hidden','true');d.innerHTML=h;
+  document.body.insertBefore(d,document.body.firstChild);
+  void d.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('in')));   // next frames so the entrance transitions play
+}
+function hwEmbers(){
+  const box=document.getElementById('bannerSp');if(!box||box.children.length)return;
+  const r=(a,b)=>(a+Math.random()*(b-a)).toFixed(1);let s='';
+  for(let i=0;i<9;i++)s+='<i style="--x:'+r(4,94)+'%;--s:'+r(2,4)+'px;--dx:'+r(-20,20)+'px;--d:'+r(3,6)+'s;--t:-'+r(0,6)+'s"></i>';
+  box.innerHTML=s;
+}
+function hwBurst(){
+  const em=['🎃','🦇','👻','🕸️','🍬','💀'];
+  for(let i=0;i<22;i++){const e=document.createElement('b');e.className='hw-pop';e.style.cssText='--x:'+(20+Math.random()*60)+'vw;--y:'+(55+Math.random()*25)+'vh;--dx:'+((Math.random()-.5)*220)+'px;--r:'+((Math.random()-.5)*80)+'deg;animation-delay:'+(Math.random()*.35)+'s';e.textContent=em[i%em.length];document.body.appendChild(e);setTimeout(()=>e.remove(),2200);}
+}
+function hwWant(){try{return localStorage.getItem(HW_KEY)!=='0'}catch(_){return true}}
+function hwLabel(){
+  const on=document.documentElement.classList.contains('hw-on');
+  document.getElementById('hwToggle').setAttribute('aria-checked',on);
+}
+let hwBusy=false;
+document.getElementById('hwToggle').onclick=()=>{
+  if(hwBusy)return;hwBusy=true;
+  const btn=document.getElementById('hwToggle');
+  const on=!document.documentElement.classList.contains('hw-on');
+  try{localStorage.setItem(HW_KEY,on?'1':'0')}catch(_){}
+  btn.setAttribute('aria-checked',on);                // switch slides right away
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const rc=btn.getBoundingClientRect(),rp=document.createElement('div');
+    rp.className='hw-ripple '+(on?'on':'off');rp.style.left=(rc.left+rc.width/2)+'px';rp.style.top=(rc.top+rc.height/2)+'px';
+    document.body.appendChild(rp);setTimeout(()=>rp.remove(),1000);
+  }
+  setTimeout(()=>{hwDeco(on);hwLabel();if(on)hwBurst();},160);   // theme swaps under the glow
+  setTimeout(()=>{hwBusy=false},900);
+};
+hwDeco(hwWant());hwLabel();hwEmbers();
+
+// ===================== HUBS & TOOLS (data and logic copied from the main site) =====================
+const GAME_HUBS_URL='https://raw.githubusercontent.com/Cra-Z-Gaming/VUS/refs/heads/main/apps.json';
+const PROXIES_URL='https://raw.githubusercontent.com/jace01b-web/itsukis-chat-hub-obfuscated/refs/heads/main/app.json';
+window.HUB_INFO={
+"kbh games":{n:"KBH Games",d:"More browser games to dig through. A few titles may be hit or miss."},
+"reids games":{n:"Reids Games",d:"A solid game collection with some movies mixed in."},
+"greeni":{n:"Greeni",d:"Movies and games together in one place."},
+"polaris hub":{n:"Polaris Hub",d:"One of the biggest libraries here. Loads of games to scroll through."},
+"wither games":{n:"Wither Games",d:"144 hand-picked popular and interesting games."},
+"gn-math":{n:"GN-Math",d:"A well-known game site and a great first stop."},
+"nautilusos":{n:"NautilusOS",d:"A polished, desktop-style interface with games inside."},
+"ultimate game stash":{n:"Ultimate Game Stash",d:"One of the biggest stashes. Use search to find a specific game, like Pokémon Emerald."},
+"sigma os":{n:"Sigma OS",d:"A Windows 11–style desktop with games and apps."},
+"noah's tutoring":{n:"Noah's Tutoring",d:"A big game library. It can be a little laggy while it loads."},
+"noah's tutoring launcher":{n:"Noah's Tutoring Launcher",d:"Same library as Noah's Tutoring, but opens behind a launch button."},
+"lucide":{n:"Lucide",d:"Web proxy for reaching sites that are otherwise blocked. Works well.",c:"orange"},
+"project bugs":{n:"Project Bugs",d:"A Google Sites page packed with games, with thumbnails so they're easy to browse.",c:"purple"},
+"calcsolver":{n:"CalcSolver",d:"Looks like a calculator site. Turn on Code mode, then tap (0) four times to open the game hub.",c:"grey"},
+"mantle":{n:"Mantle",d:"Quality over quantity: modded Minecraft, an AI assistant and a proxy in one app.",c:"red"},
+"fern":{n:"Fern",d:"Another web proxy for opening blocked sites.",c:"lime"},
+"game 'n go games 1":{n:"Game 'N Go Games 1",d:"A game hub that looks and feels like a computer desktop.",c:"cyan"},
+"game 'n go games 2":{n:"Game 'N Go Games 2",d:"Backup mirror of Game 'N Go, handy if the first one is down.",c:"cyan"},
+"zaka":{n:"Zaka",d:"Zaka's web proxy for opening blocked sites.",c:"blue"},
+"bestspark":{n:"BestSpark",d:"A collection of game hubs plus original games made by the community.",c:"lime"},
+"gust":{n:"Gust",d:"Another game hub to try when your usual ones are blocked.",c:"white"},
+"unblockedzone!":{n:"UnblockedZone!",d:"A very popular game site that keeps several mirrors as backups.",c:"red"},
+"idk 10.0":{n:"idk 10.0",d:"A desktop-style game hub with a big selection of games.",c:"purple"},
+"ghost hub cinema":{n:"Ghost Hub Cinema",d:"A collection of movies to browse and watch.",c:"white"}
+};
+window.HUB_INFO_X={
+apps:{
+"basik (chat)":{n:"BaSik",i:"BaSik",c:"blue",d:"Super lightweight text-only chat. No roles, no images, just messages."},
+"youtube v20":{n:"YouTube V20",i:"YT",c:"rose",d:"A YouTube player with playlists, settings and private + public keys."},
+"unicorn's hideout 🦄":{n:"Unicorn's Hideout 🦄",i:"🦄",c:"purple",d:"unicorngirl38's hideout."}
+},
+tools:{
+"ai code editor":{n:"AI Code Editor",c:"violet",d:"Code editor with built-in AI that can replace, add and delete specific lines."},
+"code editor":{n:"Code Editor",c:"blue",d:"Live HTML editor with an instant preview."},
+"about:blank opener":{n:"about:blank Opener",c:"amber",d:"Opens files and sites in an about:blank tab. Some sites block this kind of cloaking."},
+"timer":{n:"Timer",c:"orange",d:"Stopwatch and countdown timer in one."},
+"local music player":{n:"Local Music Player",c:"rose",d:"Play music files straight from your own device."},
+"file + folder viewer":{n:"File + Folder Viewer",c:"lime",d:"Browse the files and folders on your device."},
+"groq api keys":{n:"Groq API Keys",c:"green",d:"Grab a free Groq API key for AI tools."},
+"notes":{n:"Notes",c:"amber",d:"Quick notes saved right in your browser."},
+"image to base64":{n:"Image to Base64",c:"green",d:"Turn an image into base64 so you can embed it even when the image link is blocked."}
+},
+links:{
+"scratch":{n:"Scratch",c:"orange",d:"Games, music and animations made by the Scratch community."},
+"get youtube key":{n:"Get YouTube Key",c:"rose",d:"Step-by-step guide to getting a YouTube Data API v3 key."},
+"google doodles":{n:"Google Doodles",c:"blue",d:"Minesweeper, Solitaire, Snake and lots more Google games."},
+"cineby":{n:"Cineby",c:"yellow",d:"Movie and sports streaming. Not proxied, so some networks may block it."},
+"code editor":{n:"Code Editor (Web)",c:"green",d:"A feature-packed online code editor."},
+"cps test":{n:"CPS Test",c:"orange",d:"Test how many clicks per second you can hit."}
+}
+};
+const HUB_COLORS={
+  white:{bg:'rgba(255,255,255,.14)',fg:'#f8fafc'},green:{bg:'rgba(34,197,94,.16)',fg:'#4ade80'},
+  blue:{bg:'rgba(59,130,246,.16)',fg:'#60a5fa'},rose:{bg:'rgba(244,63,94,.16)',fg:'#fb7185'},
+  violet:{bg:'rgba(139,92,246,.16)',fg:'#a78bfa'},yellow:{bg:'rgba(234,179,8,.16)',fg:'#fde047'},
+  cyan:{bg:'rgba(6,182,212,.16)',fg:'#22d3ee'},lime:{bg:'rgba(132,204,22,.16)',fg:'#a3e635'},
+  orange:{bg:'rgba(249,115,22,.16)',fg:'#fb923c'},red:{bg:'rgba(239,68,68,.16)',fg:'#f87171'},
+  purple:{bg:'rgba(168,85,247,.16)',fg:'#c084fc'},black:{bg:'rgba(255,255,255,.08)',fg:'#e2e8f0'},
+  grey:{bg:'rgba(148,163,184,.16)',fg:'#cbd5e1'},amber:{bg:'rgba(245,158,11,.16)',fg:'#fbbf24'}
+};
+const PROXY_FALLBACK={"credits":"Every proxy here belongs to its original creators. Full credit to all of them. I didn't make any of these.","groups":[{"name":"Shadow","links":["https://studyeconomics.berugy.hu","https://reviewastronomy.dadaclubdearte.ar","https://explorephysics.flyredwing.ru","https://primegrammarhelp.telradio.com.ar","https://studychemistry.artsydomains.com","https://smartcalculuspractice.rostech.mx","https://clearreadinglab.thevictoryseed.org","https://dailygrammaracademy.krl.com.np","https://grammarlab.kominarstvotuzinsky.sk"]},{"name":"Petezah","links":["https://petezahgames11.firebaseapp.com","https://petezahgames12.firebaseapp.com","https://cdn.jsdelivr.net/gh/newrelightedteam/math@master/nirbytes.svg","https://cdn.jsdelivr.net/gh/PeteZah-G/PeteZahStaticDone@main/new.svg","https://cdn.jsdelivr.net/gh/Eraclio28/PeteZahStaticDone@main/new.svg","https://cdn.jsdelivr.net/gh/PeteZah-G/PeteZahStaticDone/main.svg","https://cdn.jsdelivr.net/gh/pineapple-petezah/homework/main.svg","https://petezahgames4.firebaseapp.com","https://123moviesgo.cfd","https://123movieshd.cyou","https://cdn.jsdelivr.net/gh/petezahiscool/svg@main/index.svg","https://cdn.jsdelivr.net/gh/homeworkpractive/svg@main/index.svg","https://quantil.jsdelivr.net/gh/homeworkpractive/svg@acfa607/pizza.svg","https://gcore.jsdelivr.net/gh/homeworkpractive/svg@acfa607/pizza.svg"]},{"name":"Nexora","links":["https://noterplusbunny7447.b-cdn.net","https://noterplusflare06.lucky-mode-2e0e.workers.dev","https://fnourguruh.b-cdn.net","https://bxappeidj4iav6crormf7atzvi0iwpnq.lambda-url.us-east-2.on.aws","https://noterplusfire06.firebaseapp.com/links","https://noterplusfire18.firebaseapp.com/links","https://noterplusfire21.firebaseapp.com/links","https://mirror.nexora-unblocked.workers.dev","https://noterplusflare02.lucky-mode-2e0e.workers.dev","https://dv2e5yktargs5yruv3eqcd6vcm0mwamc.lambda-url.us-east-2.on.aws","https://noterplusfire18.firebaseapp.com","https://noterplus-147.web.app","https://noterplus-177.web.app","https://noterplusfire32.firebaseapp.com"]},{"name":"Lunaar and V2","links":["https://lunar-school.inmobiliariamardelplata.com"]},{"name":"Selenite","links":["https://louispasteuriswformilkthegoatedhimselfdiddy.churchinhuntsville.org"]},{"name":"Void Network","links":["https://bcsdny.net","https://voidthebest.centrodiagnosticogenetico.com","https://iliketocode.majoitus.ee","https://doyourwork.mundra.com","https://voidistuff.rusticrivergear.com","https://bld.share-with.de","https://gmpuj.share-with.uk","https://cko.shared2.uk","https://wypa.anointedacres.com","https://jqwmq.deepee.com","https://bigboy4.pagostepeapulco.gob.mx","https://bigboy2.panel-laboralcj.gob.mx","https://bigboy3.root.sx"]},{"name":"Truffled","links":["https://health.wvpreschool.org","https://for-randomgamer5354.viapointpos.com","https://for-randomgamer5354.glamourfreaks.com","https://truffled.cafemeridiano.com.br","https://truffled.freshmilk.co.za","https://truffled.gparente.net.br","https://truffled.oxsec.com.mx"]}]};
+const SECS=[['hubs','Hubs'],['apps','Apps'],['tools','Tools'],['links','Links'],['proxies','Proxies']];
+let hubData=null,hubSec='hubs',hubQ='',hubGrp='',proxyCredit='';
+const $=id=>document.getElementById(id);
+
+function hubInfoFor(sec,name){const k=(name||'').trim().toLowerCase();return (sec==='hubs'?HUB_INFO:(HUB_INFO_X[sec]||{}))[k]||null;}
+
+async function loadHubs(){
+  const list=$('hubList');
+  list.innerHTML='<div class="m-empty">Loading...</div>';
+  try{
+    const res=await fetch(GAME_HUBS_URL+'?v='+Date.now(),{cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json(),out=[];
+    SECS.forEach(([sec])=>{
+      (data[sec]||[]).forEach(h=>{
+        if(!h||!h.name||!h.name.trim()||!h.url||!h.url.trim())return;
+        const i=hubInfoFor(sec,h.name);
+        if(!i)return;
+        out.push({...h,sec,name:i.n||h.name.trim(),desc:i.d||h.desc||'',icon:i.i||h.icon||'',color:(h.color&&h.color.trim())||i.c||''});
+      });
     });
+    let px=PROXY_FALLBACK;
+    try{const pr=await fetch(PROXIES_URL+'?v='+Date.now(),{cache:'no-store'});if(pr.ok){const pj=await pr.json();if(pj&&Array.isArray(pj.groups)&&pj.groups.length)px=pj;}}catch(_){}
+    proxyCredit=px.credits||PROXY_FALLBACK.credits;
+    const PXC=['blue','violet','rose','green','orange','cyan','purple','red'];
+    px.groups.forEach((g,gi)=>{
+      const ls=(g.links||[]).filter(u=>u&&u.trim());
+      ls.forEach((u,i)=>out.push({sec:'proxies',group:g.name,name:g.name+(ls.length>1?' '+(i+1):''),url:u.trim(),desc:u.trim().replace(/^https?:\/\//,''),icon:'\ud83c\udf10',color:PXC[gi%PXC.length]}));
+    });
+    hubData=out;renderHubs();
+  }catch(e){
+    list.innerHTML='<div class="m-empty">Couldn\'t load the list.<br><br><button class="lc-go" id="hubRetry" type="button">Retry</button></div>';
+    $('hubRetry').onclick=loadHubs;
   }
+}
 
-  // Make relative URLs inside the loaded page resolve against the repo's raw folder.
-  function prepareHtml(html) {
-    var baseTag = '<base href="' + RAW_BASE + '">';
-    if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, "<head$1>" + baseTag);
-    if (/<html[^>]*>/i.test(html)) return html.replace(/<html([^>]*)>/i, "<html$1><head>" + baseTag + "</head>");
-    return baseTag + html;
-  }
-
-  function render(html) {
-    var blob = new Blob([prepareHtml(html)], { type: "text/html" });
-    var url = URL.createObjectURL(blob);
-    var old = currentBlobUrl;
-    currentBlobUrl = url;
-    frame.src = url;
-    frame.onload = function () {
-      status.classList.add("hide");
-      if (old) URL.revokeObjectURL(old);
-    };
-  }
-
-  function showError(e) {
-    status.classList.remove("hide");
-    status.innerHTML = '<div>The halls are silent. (' + (e && e.message ? e.message : e) + ')</div>' +
-      '<button id="retry">Retry</button>';
-    document.getElementById("retry").onclick = function () { location.reload(); };
-  }
-
-  function load(force) {
-    if (loading) return Promise.resolve();
-    loading = true;
-    return fetchText(RAW_URL).then(function (html) {
-      var h = hash(html);
-      if (force || h !== currentHash) {
-        currentHash = h;
-        render(html);
-      }
-    }).catch(function (e) {
-      if (!currentHash) showError(e); // only show error if nothing is displayed yet
-      else console.warn("Update check failed:", e);
-    }).then(function () { loading = false; });
-  }
-
-  function checkCommit() {
-    return fetch(COMMIT_API, { cache: "no-store", headers: { "Accept": "application/vnd.github+json" } })
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (j) {
-        if (!j || !j.sha) return;
-        if (currentSha && j.sha !== currentSha) {
-          currentSha = j.sha;
-          return load(true); // other files changed -> reload the page
-        }
-        currentSha = j.sha;
-      })
-      .catch(function () { /* rate-limited or offline: ignore, file polling still works */ });
-  }
-
-  // Initial load
-  load(true).then(checkCommit);
-
-  // Auto-update
-  setInterval(function () { if (!document.hidden) load(false); }, POLL_FILE_MS);
-  setInterval(function () { if (!document.hidden) checkCommit(); }, POLL_COMMIT_MS);
-  document.addEventListener("visibilitychange", function () {
-    if (!document.hidden) { load(false); checkCommit(); }
+function renderHubs(){
+  if(!hubData)return;
+  const q=hubQ;
+  const match=h=>!q||h.name.toLowerCase().includes(q)||(h.desc||'').toLowerCase().includes(q)||(h.group||'').toLowerCase().includes(q);
+  const counts={};hubData.forEach(h=>{if(match(h))counts[h.sec]=(counts[h.sec]||0)+1;});
+  $('hubTabs').innerHTML=SECS.map(([k,l])=>`<button class="m-tab${k===hubSec?' on':''}" data-k="${k}" type="button" role="tab">${l}<small>${counts[k]||0}</small></button>`).join('');
+  $('hubTabs').querySelectorAll('.m-tab').forEach(b=>b.onclick=()=>{hubSec=b.dataset.k;hubGrp='';renderHubs();$('hubList').scrollTop=0;});
+  const items=hubData.filter(h=>h.sec===hubSec&&match(h));
+  const isPx=hubSec==='proxies';
+  if(isPx&&hubGrp&&!items.some(h=>h.group===hubGrp))hubGrp='';
+  const groups=isPx?[...new Set(items.map(h=>h.group))]:[];
+  $('hubChips').innerHTML=groups.length?['',...groups].map(g=>`<button class="m-chip${g===hubGrp?' on':''}" data-g="${escapeHtml(g)}" type="button">${g?escapeHtml(g):'All'}</button>`).join(''):'';
+  $('hubChips').querySelectorAll('.m-chip').forEach(b=>b.onclick=()=>{hubGrp=b.dataset.g;renderHubs();});
+  const shown=isPx&&hubGrp?items.filter(h=>h.group===hubGrp):items;
+  const list=$('hubList');list.innerHTML='';
+  if(!shown.length){const other=Object.values(counts).reduce((a,b)=>a+b,0);list.innerHTML='<div class="m-empty">'+(q&&other?'No matches in this tab, but '+other+' in the other tabs.':'Nothing found.')+'</div>';return;}
+  if(isPx){const c=document.createElement('div');c.className='m-credit';c.textContent='❤️ '+proxyCredit;list.appendChild(c);}
+  shown.forEach((h,i)=>{
+    const c=HUB_COLORS[(h.color||'').toLowerCase()]||HUB_COLORS.grey;
+    const row=document.createElement('button');row.type='button';row.className='hub-row locked';row.style.animationDelay=Math.min(i,12)*0.02+'s';
+    row.innerHTML=`<div class="hub-ic" style="background:${c.bg};color:${c.fg}">${escapeHtml((h.icon||h.name.slice(0,2)).toString().slice(0,4))}</div><div class="nm"><div class="hub-nm">${escapeHtml(h.name)}</div>${h.desc?`<div class="hub-desc">${escapeHtml(h.desc)}</div>`:''}</div><div class="hub-arrow">🔒</div>`;
+    row.onclick=()=>openLink(h);
+    list.appendChild(row);
   });
-  window.addEventListener("online", function () { load(false); });
-})();
+}
+
+function openHubs(){
+  $('hubBg').classList.remove('closing');$('hubBg').classList.add('show');
+  placeModal($('hubBg'),$('hubBg').firstElementChild,$('hubsBtn'),0,500);
+  if(hubData)renderHubs();else loadHubs();
+  setTimeout(()=>$('hubSearch').focus({preventScroll:true}),50);
+}
+function closeHubs(){
+  const bg=$('hubBg');if(!bg.classList.contains('show'))return;
+  bg.classList.add('closing');setTimeout(()=>bg.classList.remove('show','closing'),200);
+}
+$('hubsBtn').onclick=openHubs;
+$('hubX').onclick=closeHubs;
+$('hubBg').onclick=e=>{if(e.target.id==='hubBg')closeHubs();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHubs();});
+$('hubSearch').oninput=()=>{hubQ=$('hubSearch').value.trim().toLowerCase();renderHubs();};
+
+// raw.githubusercontent links are page source, so fetch and write them into a fresh tab; everything else opens directly
+function openLink(h){
+  showToast('You must sign in to use the websites.','err');
+  return;
+  if(!h.url)return;
+  if(!h.url.includes('raw.githubusercontent.com')){window.open(h.url,'_blank','noopener');return;}
+  showToast('Loading '+h.name+'...','load');
+  fetch(h.url+(h.url.includes('?')?'&':'?')+'v='+Date.now(),{cache:'no-store'})
+    .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+    .then(text=>{
+      const win=window.open('about:blank','_blank');
+      if(!win){showToast('Popup blocked — allow popups for this site','err');return;}
+      win.document.open();win.document.write(text);win.document.close();
+    })
+    .catch(()=>showToast('Failed to load '+h.name,'err'));
+}
+
+// ===================== OPEN APP =====================
+// When this page sits inside a tall embed (e.g. a Canva site), the iframe viewport is taller than the visible screen, so a
+// vertically centred modal can land below the fold. In that case, anchor the modal to the button that was just clicked.
+function embeddedTall(){
+  try{return window.self!==window.top&&window.innerHeight>(screen.availHeight||innerHeight)*0.8;}catch(_){return true;}
+}
+function placeModal(bg,box,anchor,extra,maxH){
+  box.style.marginTop='';box.style.height='';bg.style.alignItems='';
+  if(!embeddedTall())return;
+  if(maxH&&box.offsetHeight>maxH)box.style.height=Math.min(maxH,innerHeight-24)+'px';   // keep tall modals inside the visible part of the embed
+  const h=Math.min(box.offsetHeight+(extra||0),innerHeight-24),r=anchor.getBoundingClientRect(),mid=r.top+r.height/2;
+  const top=Math.max(12,Math.min(mid-h/2,innerHeight-h-12));
+  bg.style.alignItems='flex-start';box.style.marginTop=top+'px';
+}
+const ROOT=document.documentElement;
+let launching=false,lastMode='iframe';
+
+function setStatus(kind,msg){
+  const box=$('modeBox'),st=$('modeStatus');
+  if(!kind){box.classList.remove('busy');st.classList.remove('err');return;}
+  box.classList.add('busy');
+  st.classList.toggle('err',kind==='err');
+  $('modeStatusTxt').textContent=msg;
+  $('modeRetry').hidden=kind!=='err';
+}
+function openMode(){
+  if(launching||ROOT.classList.contains('app-open'))return;
+  setStatus(null);
+  $('modeBg').classList.remove('closing');$('modeBg').classList.add('show');
+  placeModal($('modeBg'),$('modeBox'),$('launch'),70);
+  setTimeout(()=>$('modeBlank').focus({preventScroll:true}),60);
+}
+function closeMode(){
+  const bg=$('modeBg');if(!bg.classList.contains('show'))return;
+  bg.classList.add('closing');setTimeout(()=>{bg.classList.remove('show','closing');setStatus(null);},200);
+}
+
+// Fetches the complete raw file: no cache, 3 tries, 20s timeout each, and checks it really is a whole HTML page
+async function fetchApp(){
+  let last;
+  for(let i=0;i<3;i++){
+    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),20000);
+    try{
+      const r=await fetch(APP.url+(APP.url.includes('?')?'&':'?')+'v='+Date.now()+i,{cache:'no-store',signal:ctl.signal});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const t=await r.text();
+      clearTimeout(to);
+      if(t.trim().length<500||!/<(!doctype|html|head|body|script)/i.test(t))throw new Error('Not a full page');
+      if(!/<\/html>/i.test(t)&&i<2)throw new Error('File looks cut off');
+      return t;
+    }catch(e){
+      clearTimeout(to);last=e;
+      if(i<2)await new Promise(res=>setTimeout(res,600*(i+1)));
+    }
+  }
+  throw last;
+}
+
+// Some hosts (Canva sites) send a CSP that blocks iframes, and a window opened from them inherits it.
+// This probes whether frames work. If not, the app is written straight into the page instead of an iframe.
+function framesBlocked(doc){
+  return new Promise(res=>{
+    let bad=false,done=false,fs=[];
+    const h=e=>{if(/frame|child|default/.test(e.effectiveDirective||e.violatedDirective||''))bad=true;};
+    const end=()=>{
+      if(done)return;done=true;
+      try{doc.removeEventListener('securitypolicyviolation',h)}catch(_){}
+      fs.forEach(f=>{try{f.remove()}catch(_){}});
+      res(bad);
+    };
+    try{
+      doc.addEventListener('securitypolicyviolation',h);
+      let n=0;
+      const mk=attr=>{
+        const f=doc.createElement('iframe');
+        f.setAttribute('aria-hidden','true');f.tabIndex=-1;
+        f.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none';
+        f.onload=()=>{if(++n>=2)setTimeout(end,80)};
+        if(attr==='srcdoc')f.srcdoc='<!doctype html><title></title>';else f.src='about:blank';
+        fs.push(f);doc.body.appendChild(f);
+      };
+      mk('srcdoc');mk('blank');
+      setTimeout(end,1500);
+    }catch(_){bad=true;end();}
+  });
+}
+function writePage(doc,text){doc.open();doc.write(text);doc.close();}
+
+// ---- same tab: full screen iframe, launcher fades away and is hidden ----
+async function launchIframe(){
+  if(launching)return;
+  launching=true;lastMode='iframe';
+  setStatus('load','Loading '+APP.name+'...');
+  let text=null;
+  if(!APP.direct){
+    try{text=await fetchApp();}
+    catch(e){launching=false;setStatus('err','Couldn\'t load '+APP.name+'.');return;}
+  }
+
+  if(await framesBlocked(document)){                    // iframes are blocked here (Canva): run the app directly in this page
+    try{
+      if(APP.direct){location.href=APP.url;return;}
+      writePage(document,text);return;
+    }catch(e){launching=false;setStatus('err','Couldn\'t load '+APP.name+'.');return;}
+  }
+  const f=document.createElement('iframe');
+  f.id='appFrame';f.title=APP.name;
+  f.setAttribute('allow','fullscreen; clipboard-read; clipboard-write; autoplay; microphone; camera; geolocation; encrypted-media; picture-in-picture');
+  f.setAttribute('allowfullscreen','');
+  let done=false,t;
+  const reveal=()=>{
+    if(done)return;done=true;clearTimeout(t);
+    ROOT.classList.add('app-launching');                 // launcher fades + blurs out
+    requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.add('show')));   // hub fades in on top
+    setTimeout(()=>{ROOT.classList.add('app-open');ROOT.classList.remove('app-launching');launching=false;setStatus(null);},750);   // then the launcher is fully hidden
+  };
+  f.onload=reveal;
+  t=setTimeout(reveal,12000);                           // never get stuck if a slow script holds the load event
+  if(APP.direct)f.src=APP.url;else f.srcdoc=text;
+  document.body.appendChild(f);
+}
+
+// ---- new tab: opened right on the click so popup blockers allow it ----
+// Quizlet sits in a full-screen iframe in the back. The tab waits 6 seconds, then the hub loads in an iframe on top of it.
+const BLANK_DELAY=6000, BLANK_BEHIND='https://quizlet.com';
+async function launchBlank(){
+  if(launching)return;
+  launching=true;lastMode='blank';
+  const win=window.open('about:blank','_blank');
+  if(!win){launching=false;closeMode();showToast('Popup blocked — allow popups for this site','err');return;}
+  closeMode();
+  let noFrames=await framesBlocked(document);               // true on Canva sites: iframes are blocked, and the new tab inherits that
+  try{
+    win.document.open();
+    if(noFrames)win.document.write('<!DOCTYPE html><title>Quizlet</title><body style="margin:0;background:#fff"></body>');
+    else win.document.write('<!DOCTYPE html><title>Quizlet</title><body style="margin:0;background:#fff;overflow:hidden"><iframe id="behind" src="'+BLANK_BEHIND+'" style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:1;background:#fff"></iframe></body>');
+    win.document.close();
+    win.document.addEventListener('securitypolicyviolation',e=>{if(/frame|child|default/.test(e.effectiveDirective||e.violatedDirective||''))noFrames=true;});
+  }catch(_){}
+  showToast('Opened. Waiting 6 seconds before loading '+APP.name+'...','load');
+  await new Promise(res=>setTimeout(res,BLANK_DELAY));      // do nothing for 6 seconds
+  if(win.closed){launching=false;return;}
+  try{
+    const text=APP.direct?null:await fetchApp();
+    if(win.closed){launching=false;return;}
+    if(noFrames){                                           // no iframes allowed: put the app straight into the tab
+      if(APP.direct)win.location.href=APP.url;else writePage(win.document,text);
+      showToast(APP.name+' opened successfully','ok');
+      launching=false;return;
+    }
+    const f=win.document.createElement('iframe');
+    f.id='hubFrame';f.title=APP.name;
+    f.setAttribute('allow','fullscreen; clipboard-read; clipboard-write; autoplay; microphone; camera; geolocation; encrypted-media; picture-in-picture');
+    f.setAttribute('allowfullscreen','');
+    f.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2;background:#0b0c1a';
+    if(APP.direct)f.src=APP.url;else f.srcdoc=text;
+    win.document.body.appendChild(f);
+    try{win.document.title=APP.name}catch(_){}
+    showToast(APP.name+' opened successfully','ok');
+  }catch(e){
+    try{win.close()}catch(_){}
+    showToast('Failed to load '+APP.name,'err');
+  }
+  launching=false;
+}
+
+window.addEventListener('resize',()=>{if($('modeBg').classList.contains('show'))placeModal($('modeBg'),$('modeBox'),$('launch'),70);if($('hubBg').classList.contains('show'))placeModal($('hubBg'),$('hubBg').firstElementChild,$('hubsBtn'),0,500);});
+function setModeTexts(){
+  $('modeTitle').textContent='Launch '+APP.name;
+}
+function openPick(){
+  if(launching||ROOT.classList.contains('app-open'))return;
+  $('pickBg').classList.remove('closing');$('pickBg').classList.add('show');
+  placeModal($('pickBg'),$('pickBox'),$('launch'),70);
+  setTimeout(()=>$('pickHub').focus({preventScroll:true}),60);
+}
+function closeBg(id){
+  const bg=$(id);if(!bg.classList.contains('show'))return;
+  bg.classList.add('closing');setTimeout(()=>bg.classList.remove('show','closing'),200);
+}
+function renderGames(){
+  const list=$('gamesList');list.innerHTML='';
+  GAMES.forEach((g,i)=>{
+    const b=document.createElement('button');b.type='button';b.style.animationDelay=Math.min(i,8)*0.05+'s';
+    const tags=(g.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
+    if(g.horror){
+      b.className='g-card';
+      b.innerHTML='<div class="g-top"><span class="g-horror">Horror</span><span class="g-mp">'+escapeHtml((g.tags||[]).includes('Multiplayer')?'Multiplayer':'')+'</span></div>'
+        +'<div class="g-title">'+escapeHtml(g.name)+'</div><div class="g-sub">'+escapeHtml(g.subtitle||'')+'</div>'
+        +'<div class="g-desc">'+escapeHtml(g.desc)+'</div><div class="g-tags">'+tags+'</div><span class="g-play">Enter the halls →</span>';
+    }else{
+      b.className='hub-row';
+      b.innerHTML='<div class="hub-ic" style="background:rgba(124,108,255,.16);color:#c8c0ff">🎮</div><div class="nm"><div class="hub-nm">'+escapeHtml(g.name)+'</div><div class="hub-desc">'+escapeHtml(g.desc)+'</div></div><div class="hub-arrow">↗</div>';
+    }
+    b.onclick=()=>chooseGame(g);
+    list.appendChild(b);
+  });
+}
+function openGames(){
+  closeBg('pickBg');
+  renderGames();
+  const bg=$('gamesBg');bg.classList.remove('closing');bg.classList.add('show');
+  placeModal(bg,$('gamesBox'),$('launch'),0,560);
+}
+function chooseGame(g){
+  if(!g.url){showToast(g.name+' has no link set yet.','err');return;}
+  APP=g;
+  closeBg('gamesBg');
+  setModeTexts();
+  setTimeout(openMode,220);
+}
+function chooseHub(){
+  APP=MAIN_APP;
+  closeBg('pickBg');
+  setModeTexts();
+  setTimeout(openMode,220);
+}
+$('launch').onclick=openPick;
+$('pickHub').onclick=chooseHub;
+$('pickGames').onclick=openGames;
+$('pickX').onclick=()=>closeBg('pickBg');
+$('pickBg').onclick=e=>{if(e.target.id==='pickBg')closeBg('pickBg');};
+$('gamesX').onclick=()=>closeBg('gamesBg');
+$('gamesBack').onclick=()=>{closeBg('gamesBg');setTimeout(openPick,220);};
+$('gamesBg').onclick=e=>{if(e.target.id==='gamesBg')closeBg('gamesBg');};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeBg('pickBg');closeBg('gamesBg');}});
+$('modeIframe').onclick=launchIframe;
+$('modeBlank').onclick=launchBlank;
+$('modeRetry').onclick=()=>{launching=false;(lastMode==='blank'?launchBlank:launchIframe)();};
+$('modeX').onclick=()=>{if(!launching)closeMode();};
+$('modeBg').onclick=e=>{if(e.target.id==='modeBg'&&!launching)closeMode();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!launching)closeMode();});
 </script>
 </body>
 </html>
